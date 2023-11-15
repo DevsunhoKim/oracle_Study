@@ -6,6 +6,7 @@ public class MainClass {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		EmpDAO dao=new EmpDAO();
+		/*
 		ArrayList<EmpVO> list=dao.empAllData();
 		for(EmpVO vo:list)
 		{
@@ -17,6 +18,9 @@ public class MainClass {
 					+vo.getDvo().getLoc()+" "
 					+vo.getSvo().getGrade());
 		}
+		*/
+		//ArrayList<EmpVO> list=dao.subqueryEmpData();
+		
 	}
 
 }

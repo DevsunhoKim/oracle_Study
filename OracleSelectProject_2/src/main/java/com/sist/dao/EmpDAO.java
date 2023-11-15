@@ -79,11 +79,19 @@ public class EmpDAO {
 			// 1. 연결
 			getConnection();
 			// 2. sql 문장 제작
+			/*
 			String sql="SELECT empno,ename,job,hiredate,"
 					+"sal,emp.deptno,dname,loc,grade "
 					+"FROM emp,dept,salgrade "
 					+"WHERE emp.deptno=dept.deptno "
 					+"AND sal BETWEEN losal AND hisal";
+					*/
+			String sql="SELECT empno,ename,job,hiredate,"
+					+"sal,emp.deptno,dname,loc,grade "
+					+"FROM emp JOIN dept "
+					+"ON emp.deptno=dept.deptno "
+					+"JOIN salgrade "
+					+"ON sal BETWEEN losal AND hisal";
 			ps=conn.prepareStatement(sql);
 			// 오라클 전송
 			ResultSet rs=ps.executeQuery();
@@ -107,6 +115,54 @@ public class EmpDAO {
 		}catch(Exception ex)
 		{
 			ex.printStackTrace();
+		}finally
+		{
+			disConnection();
+		}
+		return list;
+	}
+	// 서브쿼리
+	/*
+	 *  서브쿼리 : SQL 문장 여러개를 한개로 모아서 한번에 처리
+	 *  메인쿼리 = (서브쿼리)
+	 *  종류
+	 *   = WHERE 뒤에 조건
+	 *    => 단일행 서브쿼리
+	 *      비교연산자 ( = , != , < , > , <= , >=) 
+	 *    => 다중행 서브쿼리
+	 *      IN , ANY , ALL
+	 *   = 컬럼 대신 사용 SELECT 뒤에 ==> 스칼라 서브쿼리
+	 *   = 테이블 대신 사용 FROM 뒤에 ==> 
+	 */ 
+	// KING 이 있는 부서에서 근무하는 사원의 사번,이름,부서명,근무지,입사일,급여
+	public ArrayList<EmpVO> subqueryEmpData()
+	{
+		ArrayList<EmpVO> list=new ArrayList<EmpVO>();
+		try
+		{
+			//서브쿼리에서는 ORDER BY는 사용이 불가능
+			getConnection();
+			String sql="SELECT empno,ename,dname,loc,hiredate,sal "
+					+"FROM emp,dept "
+					+"WHERE emp.deptno=dept.deptno "
+					+"AND emp.deptno(SELECT deptno FROM emp WHERE ename='KING')";
+			ps=conn.prepareStatement(sql);
+			ResultSet rs=ps.executeQuery();
+			while(rs.next())
+			{
+				EmpVO vo=new EmpVO();
+				vo.setEmpno(rs.getInt(1));
+				vo.setEname(rs.getString(2));
+				vo.getDvo().setDname(rs.getString(3));
+				vo.getDvo().setLoc(rs.getString(4));
+				vo.setHiredate(rs.getDate(5));
+				vo.setSal(rs.getInt(6));
+				list.add(vo);
+			}
+		}catch(Exception ex)
+		{
+			ex.printStackTrace();
+			
 		}finally
 		{
 			disConnection();

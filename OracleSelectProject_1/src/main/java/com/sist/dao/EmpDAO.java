@@ -330,6 +330,39 @@ public class EmpDAO {
 		{
 			disConnection();
 		}
+		
+		
+	}
+	// 다중행 서브쿼리 => IN 이름의 A를 포함하고 있는 사원의 부서에서 근무하는
+	// 사원의 사번 이름 부서명
+	public ArrayList<EmpVO> subqueryInEmpListData()
+	{
+		ArrayList<EmpVO> list=
+				new ArrayList<EmpVO>();
+		try
+		{
+			getConnection();
+			String sql="SELECT empno,ename,dname,loc,hiredate,sal "
+					+"FROM emp JOIN dept "
+					+"ON emp.deptno=dept.deptno "
+					+"AND emp.deptno IN(SELECT DISTINCT deptno FROM emp WHERE ename LIKE '%A%')"
+					+"ORDER BY emp.deptno ASC";
+			ps=conn.prepareStatement(sql);
+			ResultSet rs=ps.executeQuery();
+			while(rs.next())
+			{
+				System.out.println(rs.getString(1)+" "+rs.getString(2)+" "
+			+rs.getDate(3)+rs.getInt(4));
+			}
+			rs.close();
+		}catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}finally
+		{
+			disConnection();
+		}
+		return list;
 	}
 	
 }
